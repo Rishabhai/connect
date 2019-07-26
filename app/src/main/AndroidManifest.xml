@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="Manifest.permission.MANAGE_OWN_CALLS"/>
 
 
 
@@ -60,12 +61,6 @@
                 />
             <intent-filter>
                 <action android:name="android.telecom.InCallService" />
-            </intent-filter>
-        </service>
-        <service android:name=".mConnectionService"
-            android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
-            <intent-filter>
-                <action android:name="android.telecom.ConnectionService" />
             </intent-filter>
         </service>
 

@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="26dp"
+        tools:layout_editor_absoluteX="0dp"
         >
 
         <com.google.android.material.textfield.TextInputEditText
@@ -37,5 +37,18 @@
             />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/recordings"
+        android:layout_width="395dp"
+        android:layout_height="297dp"
+        android:layout_marginBottom="8dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="@tools:sample/first_names"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

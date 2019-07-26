@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaRecorder
 import android.os.Bundle
-import android.os.Environment
 import android.telecom.Call
 import android.util.Log
 import android.widget.Toast
@@ -17,11 +16,13 @@ import kotlinx.android.synthetic.main.activity_call.*
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import android.content.pm.PackageManager
-import android.Manifest.permission
-import android.Manifest.permission.RECORD_AUDIO
 import androidx.core.content.ContextCompat
 import android.Manifest
 import androidx.core.app.ActivityCompat
+import java.util.Date
+import android.media.AudioManager
+import android.telecom.InCallService
+import com.github.arekolek.phone.OngoingCall.call
 
 
 class CallActivity : AppCompatActivity() {
@@ -32,14 +33,22 @@ class CallActivity : AppCompatActivity() {
     private var recorder: MediaRecorder? = null
     private var isRecording = false
     private val MY_PERMISSION = 0;
+    private var customerList: HashSet<String> = HashSet(10)
+    var audioManager: AudioManager? = null
+    var inCallService: InCallService? = null
+    private var muteStatus :Boolean = false
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
-        number = intent.data.schemeSpecificPart
         checkAuthorizationStatus()
+        number = intent.data.schemeSpecificPart
+
+//        audioManager = this.getSystemService(AUDIO_SERVICE) as AudioManager
+//        audioManager!!.setMode(AudioManager.MODE_IN_CALL);
+
 
     }
 
@@ -52,6 +61,15 @@ class CallActivity : AppCompatActivity() {
 
         hangup.setOnClickListener {
             OngoingCall.hangup()
+        }
+
+        holdBtn.setOnClickListener {
+            if(OngoingCall.state.value==Call.STATE_ACTIVE){
+                OngoingCall.hold()
+            }
+            else if(OngoingCall.state.value==Call.STATE_HOLDING) {
+                OngoingCall.unHold()
+            }
         }
 
         OngoingCall.state
@@ -70,6 +88,13 @@ class CallActivity : AppCompatActivity() {
     private fun updateUi(state: Int) {
 
         callInfo.text = "${state.asString().toLowerCase().capitalize()}\n$number"
+        if(state == Call.STATE_HOLDING){
+            holdBtn.text = "UNHOLD"
+        }else{
+            holdBtn.text = "HOLD"
+        }
+
+        customerCallHandler(number) // if not customer then close app
 
         answer.isVisible = state == Call.STATE_RINGING
         hangup.isVisible = state in listOf(
@@ -77,25 +102,65 @@ class CallActivity : AppCompatActivity() {
             Call.STATE_RINGING,
             Call.STATE_ACTIVE
         )
-        if(state==Call.STATE_ACTIVE){
-            Toast.makeText(this,"Recording Started",Toast.LENGTH_LONG).show()
+
+        holdBtn.isVisible = state in listOf(
+            Call.STATE_HOLDING,
+            Call.STATE_ACTIVE
+        )
+
+        recordingHandler(state)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        disposables.clear()
+    }
+
+    companion object {
+        fun start(context: Context, call: Call) {
+            Intent(context, CallActivity::class.java)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setData(call.details.handle)
+                .let(context::startActivity)
+        }
+        fun startCall(context:Context){
+            Intent(context, CallActivity::class.java)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setData(call!!.details.handle)
+                .let(context::startActivity)
+        }
+
+    }
+
+    private fun customerCallHandler(number:String){
+
+//        if(!customerList.contains(number)){
+//            this.finish();//replace with better implementation to pass InCallService to default app
+//            System.exit(0);
+//        }
+
+    }
+
+    private fun recordingHandler(state:Int){
+        if(state==Call.STATE_ACTIVE && !isRecording){
             try {
                 prepareRecorder()
-
+                startRecording()
+                isRecording=true
             }catch (e:IOException){
                 Toast.makeText(this,e.toString(),Toast.LENGTH_SHORT).show()
                 Log.d("PREPARE","${e}")
             }
-            startRecoring()
+
         }
 
-        if(state==Call.STATE_DISCONNECTED){
-            Toast.makeText(this,"Recording Completed",Toast.LENGTH_LONG).show()
+        if(state==Call.STATE_DISCONNECTED && isRecording){
+            Toast.makeText(this,"Recording Completed",Toast.LENGTH_SHORT).show()
             stopRecording()
         }
     }
 
-    fun checkAuthorizationStatus() {
+    private fun checkAuthorizationStatus() {
         if(ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -110,46 +175,41 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
+    private fun prepareRecorder(){
+        recorder = MediaRecorder()
+        recorder?.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+        recorder?.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS)
+        recorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+        var directory = this.getFilesDir()
 
-    fun prepareRecorder(){
-        recorder = MediaRecorder();
-        recorder?.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-        recorder?.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
-        recorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()
-
+        var name = "${number}_${Date()}"
+        Toast.makeText(this,name,Toast.LENGTH_LONG).show()
         try {
-            recorder?.setOutputFile("${directory}/record.aac");
+            recorder?.setOutputFile("${directory}/${name}.aac");
         }catch (e:IOException){
             Log.d("SETOUTPUTFILE","${e}")
         }
         recorder?.prepare();
     }
 
-    fun startRecoring(){
+    private fun startRecording(){
         recorder?.start();
         isRecording = true;
 
     }
 
-    fun stopRecording(){
+    private fun stopRecording(){
         recorder?.stop()
         recorder?.release()
         isRecording = false;
     }
 
 
-    override fun onStop() {
-        super.onStop()
-        disposables.clear()
-    }
-
-    companion object {
-        fun start(context: Context, call: Call) {
-            Intent(context, CallActivity::class.java)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .setData(call.details.handle)
-                .let(context::startActivity)
+    private fun mute(value:Boolean){
+        try{
+            inCallService!!.setMuted(value)
+        }catch (e:IOException){
+            Toast.makeText(this,"${e}",Toast.LENGTH_LONG)
         }
     }
 }

@@ -39,7 +39,17 @@
         app:layout_constraintEnd_toStartOf="@+id/answer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/callInfo"
-        app:layout_constraintVertical_bias="0.503"
+        app:layout_constraintVertical_bias="0.4"
+        />
+
+    <Button
+        android:id="@+id/holdBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/hangup"
+        app:layout_constraintTop_toBottomOf="@id/hangup"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -25,11 +25,21 @@ object OngoingCall {
             field = value
         }
 
+
+
     fun answer() {
         call!!.answer(VideoProfile.STATE_AUDIO_ONLY)
     }
 
     fun hangup() {
         call!!.disconnect()
+    }
+
+    fun hold(){
+        call!!.hold()
+    }
+
+    fun unHold(){
+        call!!.unhold()
     }
 }
