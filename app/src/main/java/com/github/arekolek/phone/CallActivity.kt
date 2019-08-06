@@ -24,6 +24,16 @@ import android.media.AudioManager
 import android.telecom.InCallService
 import com.github.arekolek.phone.OngoingCall.call
 
+import net.gotev.uploadservice.MultipartUploadRequest;
+import net.gotev.uploadservice.UploadNotificationConfig
+import java.util.UUID
+import java.net.HttpURLConnection
+import java.io.InputStream
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.net.URL
+import java.net.URLConnection
+
 
 class CallActivity : AppCompatActivity() {
 
@@ -37,6 +47,7 @@ class CallActivity : AppCompatActivity() {
     var audioManager: AudioManager? = null
     var inCallService: InCallService? = null
     private var muteStatus :Boolean = false
+    private var filepath:String? = null
 
 
 
@@ -46,6 +57,9 @@ class CallActivity : AppCompatActivity() {
         checkAuthorizationStatus()
         number = intent.data.schemeSpecificPart
 
+        isRecording = false
+
+
 //        audioManager = this.getSystemService(AUDIO_SERVICE) as AudioManager
 //        audioManager!!.setMode(AudioManager.MODE_IN_CALL);
 
@@ -54,7 +68,6 @@ class CallActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-
         answer.setOnClickListener {
             OngoingCall.answer()
         }
@@ -80,7 +93,10 @@ class CallActivity : AppCompatActivity() {
             .filter { it == Call.STATE_DISCONNECTED }
             .delay(1, TimeUnit.SECONDS)
             .firstElement()
-            .subscribe { finish() }
+            .subscribe {
+//                finish()
+                uploadMultipart(this)
+            } //To close Activity when call gets disconnected
             .addTo(disposables)
     }
 
@@ -181,11 +197,10 @@ class CallActivity : AppCompatActivity() {
         recorder?.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS)
         recorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
         var directory = this.getFilesDir()
-
-        var name = "${number}_${Date()}"
-        Toast.makeText(this,name,Toast.LENGTH_LONG).show()
+        var name = number
+        filepath = "${directory}/${name}_${Date()}.aac"
         try {
-            recorder?.setOutputFile("${directory}/${name}.aac");
+            recorder?.setOutputFile(filepath);
         }catch (e:IOException){
             Log.d("SETOUTPUTFILE","${e}")
         }
@@ -204,6 +219,23 @@ class CallActivity : AppCompatActivity() {
         isRecording = false;
     }
 
+    fun uploadMultipart(context: Context) {
+        try {
+            val url = URL("http://192.168.43.156:3000/recordings")
+            val uploadId = UUID.randomUUID().toString()
+            var directory = this.getFilesDir()
+            var name = number
+            filepath = "${directory}/${name}.aac"
+            val request = MultipartUploadRequest(context,uploadId, url.toString())
+                // starting from 3.1+, you can also use content:// URI string instead of absolute file
+                .addFileToUpload(filepath, "recording")
+                .setNotificationConfig(UploadNotificationConfig())
+                .setMaxRetries(2)
+                .startUpload()
+        } catch (exc: Exception) {
+            Log.d("AndroidUploadService", exc.message, exc)
+            }
+    }
 
     private fun mute(value:Boolean){
         try{
@@ -212,4 +244,7 @@ class CallActivity : AppCompatActivity() {
             Toast.makeText(this,"${e}",Toast.LENGTH_LONG)
         }
     }
-}
+
+
+    }
+

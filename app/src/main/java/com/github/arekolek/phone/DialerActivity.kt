@@ -2,7 +2,6 @@ package com.github.arekolek.phone
 
 import android.Manifest
 import android.Manifest.permission.CALL_PHONE
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.telecom.TelecomManager
@@ -16,7 +15,6 @@ import kotlinx.android.synthetic.main.activity_dialer.*
 import android.content.Context;
 import android.content.pm.PackageManager
 import android.net.Uri;
-import android.telecom.Call
 import android.widget.Button;
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -57,8 +55,6 @@ class DialerActivity : AppCompatActivity() {
             recordings.text = fileNames
         }
     }
-
-
 
     private fun makeCall() {
         if (checkSelfPermission(this, CALL_PHONE) == PERMISSION_GRANTED) {
@@ -108,10 +104,10 @@ class DialerActivity : AppCompatActivity() {
         val telecomManager = this.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
 
         if (telecomManager.isInCall()){
-            Toast.makeText(this,"CALL Goiing ON",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,"CALL Going ON",Toast.LENGTH_SHORT).show()
             CallActivity.startCall(this)
         }else{
-            Toast.makeText(this," N0 ONgoing Call",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,"N0 Ongoing Call",Toast.LENGTH_SHORT).show()
         }
     }
 }
