@@ -5,51 +5,119 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#DA050505"
     tools:context=".CallActivity"
     >
 
     <TextView
         android:id="@+id/callInfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="574dp"
+        android:background="#1A050505"
+        android:fontFamily="monospace"
         android:gravity="center"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="#F3FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:typeface="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-       tools:text="Hello World!"
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="Hello World!"
         />
 
-    <Button
-        android:id="@+id/answer"
+    <Switch
+        android:id="@+id/activeSwitch2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Answer"
-        app:layout_constraintBaseline_toBaselineOf="@id/hangup"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:checked="true"
+        android:fontFamily="monospace"
+
+
+        android:splitTrack="false"
+        android:switchMinWidth="50dp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:thumb="@drawable/toogle_on"
+        android:typeface="monospace"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/hangup"
+        app:layout_constraintHorizontal_bias="0.923"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.082"
         />
 
-    <Button
-        android:id="@+id/hangup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hang up"
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="116dp"
+        android:layout_margin="16dp"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/answer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/callInfo"
-        app:layout_constraintVertical_bias="0.4"
-        />
+        app:layout_constraintVertical_bias="0.0"
+        >
 
-    <Button
-        android:id="@+id/holdBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/hangup"
-        app:layout_constraintTop_toBottomOf="@id/hangup"
-        />
+
+        <ImageButton
+            android:id="@+id/answer"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            android:scaleType="centerInside"
+            android:src="@drawable/dial_icon"
+            android:text="Answer"
+            android:tint="#4CFF00"
+            android:visibility="visible"
+            tools:layout_editor_absoluteX="284dp"
+            tools:layout_editor_absoluteY="441dp"
+            tools:src="@drawable/dial_icon"
+            />
+
+        <ImageButton
+            android:id="@+id/holdBtn"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            android:scaleType="centerInside"
+            android:text="Hold"
+            android:visibility="visible"
+            tools:layout_editor_absoluteX="29dp"
+            tools:layout_editor_absoluteY="438dp"
+            tools:src="@drawable/hold"
+            />
+
+        <ImageButton
+            android:id="@+id/hangup"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            android:fitsSystemWindows="false"
+            android:scaleType="centerInside"
+            android:src="@drawable/end_call_icon"
+            android:text="Hang up"
+            android:tint="#FF3D00"
+            android:visibility="visible"
+            tools:layout_editor_absoluteX="158dp"
+            tools:src="@drawable/end_call_icon"
+            />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,50 +5,84 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bgBlue"
+    android:scrollbarDefaultDelayBeforeFade="0"
+    android:scrollbarFadeDuration="0"
     tools:context=".DialerActivity"
     >
 
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/textInputLayout"
+        android:layout_width="279dp"
+        android:layout_height="72dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp"
         >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/phoneNumberInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/call_input_hint"
+            android:layout_width="247dp"
+            android:layout_height="66dp"
+            android:layout_marginLeft="16dp"
+            android:fontFamily="monospace"
+            android:hint="Phone Number"
             android:imeOptions="actionGo"
             android:inputType="phone"
-            />
-
-        <Button
-            android:id="@+id/callButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#0FF818"
-            android:text="CALL"
-            android:textColor="#000000"
-            tools:layout_constraintBottom_toBottomOf="@id/phoneNumberInput"
-            tools:layout_gravity="center_horizontal"
+            android:scrollbarAlwaysDrawHorizontalTrack="true"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:singleLine="true"
+            android:textColorHighlight="#0189ff"
+            android:textColorLink="#0189ff"
             />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/recordings"
-        android:layout_width="395dp"
-        android:layout_height="297dp"
+    <Switch
+        android:id="@+id/activeSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="TextView"
+        android:checked="true"
+        android:fontFamily="monospace"
+
+
+        android:splitTrack="false"
+        android:switchMinWidth="50dp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:thumb="@drawable/toogle_on"
+        android:typeface="monospace"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.922"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.082"
+        />
+
+    <Button
+        android:id="@+id/callButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/call_button"
+        android:fontFamily="monospace"
+        android:text="Call"
+        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="@tools:sample/first_names"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

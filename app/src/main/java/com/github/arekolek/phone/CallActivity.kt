@@ -7,6 +7,7 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.telecom.Call
 import android.util.Log
+import android.os.AsyncTask
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -18,21 +19,27 @@ import java.util.concurrent.TimeUnit
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import android.Manifest
+import android.graphics.Color
 import androidx.core.app.ActivityCompat
-import java.util.Date
 import android.media.AudioManager
 import android.telecom.InCallService
 import com.github.arekolek.phone.OngoingCall.call
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationConfig
-import java.util.UUID
-import java.net.HttpURLConnection
-import java.io.InputStream
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
 import java.net.URL
-import java.net.URLConnection
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.Response
+import retrofit2.Callback
+import java.io.File
+import java.util.*
+import kotlin.collections.HashSet
+import retrofit2.Call as CallAPI
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.MediaType
+import okhttp3.ResponseBody
 
 
 class CallActivity : AppCompatActivity() {
@@ -47,7 +54,7 @@ class CallActivity : AppCompatActivity() {
     var audioManager: AudioManager? = null
     var inCallService: InCallService? = null
     private var muteStatus :Boolean = false
-    private var filepath:String? = null
+    public var filepath:String? = null
 
 
 
@@ -56,14 +63,7 @@ class CallActivity : AppCompatActivity() {
         setContentView(R.layout.activity_call)
         checkAuthorizationStatus()
         number = intent.data.schemeSpecificPart
-
         isRecording = false
-
-
-//        audioManager = this.getSystemService(AUDIO_SERVICE) as AudioManager
-//        audioManager!!.setMode(AudioManager.MODE_IN_CALL);
-
-
     }
 
     override fun onStart() {
@@ -94,8 +94,9 @@ class CallActivity : AppCompatActivity() {
             .delay(1, TimeUnit.SECONDS)
             .firstElement()
             .subscribe {
-//                finish()
+
                 uploadMultipart(this)
+
             } //To close Activity when call gets disconnected
             .addTo(disposables)
     }
@@ -105,21 +106,28 @@ class CallActivity : AppCompatActivity() {
 
         callInfo.text = "${state.asString().toLowerCase().capitalize()}\n$number"
         if(state == Call.STATE_HOLDING){
-            holdBtn.text = "UNHOLD"
+           holdBtn.setImageResource(R.drawable.unhold)
         }else{
-            holdBtn.text = "HOLD"
+           holdBtn.setImageResource(R.drawable.hold)
         }
 
         customerCallHandler(number) // if not customer then close app
 
-        answer.isVisible = state == Call.STATE_RINGING
-        hangup.isVisible = state in listOf(
+        if(state == Call.STATE_RINGING){
+            answer.isClickable = true
+            answer.setColorFilter(Color.argb(150, 0, 0, 0))
+        }else{
+            answer.isClickable = false
+            answer.setColorFilter(Color.argb(255, 0, 0, 0))
+        }
+
+        hangup.isClickable = state in listOf(
             Call.STATE_DIALING,
             Call.STATE_RINGING,
             Call.STATE_ACTIVE
         )
 
-        holdBtn.isVisible = state in listOf(
+        holdBtn.isClickable = state in listOf(
             Call.STATE_HOLDING,
             Call.STATE_ACTIVE
         )
@@ -164,14 +172,14 @@ class CallActivity : AppCompatActivity() {
                 startRecording()
                 isRecording=true
             }catch (e:IOException){
-                Toast.makeText(this,e.toString(),Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this,e.toString(),Toast.LENGTH_SHORT).show()
                 Log.d("PREPARE","${e}")
             }
 
         }
 
         if(state==Call.STATE_DISCONNECTED && isRecording){
-            Toast.makeText(this,"Recording Completed",Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this,"Recording Completed",Toast.LENGTH_SHORT).show()
             stopRecording()
         }
     }
@@ -198,7 +206,7 @@ class CallActivity : AppCompatActivity() {
         recorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
         var directory = this.getFilesDir()
         var name = number
-        filepath = "${directory}/${name}_${Date()}.aac"
+        filepath = "${directory}/${name}.aac"
         try {
             recorder?.setOutputFile(filepath);
         }catch (e:IOException){
@@ -219,13 +227,16 @@ class CallActivity : AppCompatActivity() {
         isRecording = false;
     }
 
+
     fun uploadMultipart(context: Context) {
+
+        val url = URL("http://192.168.43.156:3000/recordings")
+        val uploadId = UUID.randomUUID().toString()
+        var directory = this.getFilesDir()
+        var name = number
+        filepath = "${directory}/${name}.aac"
+
         try {
-            val url = URL("http://192.168.43.156:3000/recordings")
-            val uploadId = UUID.randomUUID().toString()
-            var directory = this.getFilesDir()
-            var name = number
-            filepath = "${directory}/${name}.aac"
             val request = MultipartUploadRequest(context,uploadId, url.toString())
                 // starting from 3.1+, you can also use content:// URI string instead of absolute file
                 .addFileToUpload(filepath, "recording")
@@ -234,9 +245,9 @@ class CallActivity : AppCompatActivity() {
                 .startUpload()
         } catch (exc: Exception) {
             Log.d("AndroidUploadService", exc.message, exc)
-            }
+        }
+    finish();
     }
-
     private fun mute(value:Boolean){
         try{
             inCallService!!.setMuted(value)
@@ -245,6 +256,7 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
+}
 
-    }
+
 

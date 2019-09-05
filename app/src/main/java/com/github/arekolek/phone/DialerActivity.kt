@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.pm.PackageManager
 import android.net.Uri;
 import android.widget.Button;
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -43,17 +44,6 @@ class DialerActivity : AppCompatActivity() {
             makeCall()
         }
 
-        var files = this.fileList()
-        if(files.isEmpty()){
-            recordings.text = "No Recordings Yet"
-        }else{
-            var fileNames = files.count().toString()
-
-            for(i in files){
-                fileNames= "${fileNames} \n ${i}"
-            }
-            recordings.text = fileNames
-        }
     }
 
     private fun makeCall() {
@@ -107,7 +97,21 @@ class DialerActivity : AppCompatActivity() {
             Toast.makeText(this,"CALL Going ON",Toast.LENGTH_SHORT).show()
             CallActivity.startCall(this)
         }else{
-            Toast.makeText(this,"N0 Ongoing Call",Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this,"N0 Ongoing Call",Toast.LENGTH_SHORT).show()
         }
     }
 }
+
+
+
+//        var files = this.fileList()
+//        if(files.isEmpty()){
+////            recordings.text = "No Recordings Yet"
+//        }else{
+//            var fileNames = files.count().toString()
+//
+//            for(i in files){
+//                fileNames= "${fileNames} \n ${i}"
+//            }
+////            recordings.text = fileNames
+//        }
